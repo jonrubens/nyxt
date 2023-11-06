@@ -38,6 +38,15 @@ To use, say, KeepassXC, set this slot to
 
 Password interfaces are configurable through a `customize-instance' method.")))
 
+(defmethod password-interface :around ((mode password-mode))
+  (let ((interface (call-next-method)))
+    (if (password:executable interface)
+        interface
+        (prog1
+            nil
+          (echo-warning "Password interface ~s lacks executable, configure if before using"
+                        (class-name (class-of interface)))))))
+
 (defmethod password-interface ((buffer buffer))
   (password-interface (find-submode 'password-mode buffer)))
 
