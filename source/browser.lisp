@@ -274,7 +274,7 @@ The handlers take the `prompt-buffer' as argument.")
     (or (uiop:getenvp "VISUAL")
         (uiop:getenvp "EDITOR")
         (when (sera:resolve-executable "gio") "gio open"))
-    :type (or (cons string *) string null)
+    :type (or string null)
     :reader nil
     :writer t
     :export t
@@ -306,10 +306,9 @@ prevents otherwise.")
 (defmethod external-editor-program ((browser browser))
   "Specialized reader for `external-editor-program' slot."
   (with-slots ((cmd external-editor-program)) browser
-    (typecase cmd
-      (list (unless (sera:blankp (first cmd)) cmd))
-      (string (unless (sera:blankp cmd) (str:split " " cmd)))
-      (t (echo-warning "Invalid value of `external-editor-program' browser slot.") nil))))
+    (if (str:blank? cmd)
+        (progn (echo-warning "Invalid value of `external-editor-program' browser slot.") nil)
+        (str:split " " cmd))))
 
 (defmethod get-containing-window-for-buffer ((buffer buffer) (browser browser))
   "Get the window containing a buffer."
